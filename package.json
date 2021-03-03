@@ -1,0 +1,23 @@
+{
+  "name": "@si14/si-atsamd-usbd",
+  "version": "1.0.0",
+  "description": "USB device implementation for ATSAMD MCUs",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/burgrp/si-atsamd-usbd.git"
+  },
+  "author": "Pavel Burgr",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/burgrp/si-atsamd-usbd/issues"
+  },
+  "homepage": "https://github.com/burgrp/si-atsamd-usbd#readme",
+  "silicon": {
+    "sources": [
+      "usb-device-atsamd.cpp"
+    ]
+  },
+  "dependencies": {
+    "@si14/si-usbd": "^1.0.0"
+  }
+}
