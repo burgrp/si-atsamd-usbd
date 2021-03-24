@@ -65,7 +65,7 @@ class AtSamdUsbDevice : public UsbDevice {
 public:
   unsigned char serialNumber[SERIAL_NUMBER_LENGTH + 1];
 
-  void useInternalOscilators() {
+  void useInternalOscillators() {
     // GC0 8MHz
 
     target::SYSCTRL.OSC8M.setPRESC(target::sysctrl::OSC8M::PRESC::_1);
