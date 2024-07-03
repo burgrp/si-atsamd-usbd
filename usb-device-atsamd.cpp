@@ -150,6 +150,8 @@ public:
           target::USB.DEVICE.EPINTFLAG[e].reg.setTRCPT(0, true);
           epDescriptors[e][0].PCKSIZE.BYTE_COUNT = 0;
           target::USB.DEVICE.EPSTATUSCLR[e].reg.setBK_RDY(0, true);
+        } else {
+          target::USB.DEVICE.EPINTFLAG[e].reg.setTRCPT(0, true);
         }
       }
 
