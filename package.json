@@ -1,6 +1,6 @@
 {
   "name": "@si14/si-atsamd-usbd",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "USB device implementation for ATSAMD MCUs",
   "repository": {
     "type": "git",
