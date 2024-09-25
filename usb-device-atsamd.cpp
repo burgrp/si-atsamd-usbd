@@ -58,8 +58,9 @@ class AtSamdUsbDevice : public UsbDevice {
 
     for (int e = 0; endpoints[e]; e++) {
       UsbEndpoint *endpoint = endpoints[e];
-      target::USB.DEVICE.EPINTENSET[e].reg.setRXSTP(true).setTRCPT(0, true).setTRCPT(1, true);
+      target::USB.DEVICE.EPINTENSET[e].reg = target::USB.DEVICE.EPINTENSET[e].reg.bare().setRXSTP(true).setTRCPT(0, true).setTRCPT(1, true);
     }
+
   }
 
 public:
@@ -126,18 +127,21 @@ public:
     target::NVIC.ISER.setSETENA(1 << target::interrupts::External::USB);
     target::USB.DEVICE.INTENSET.setEORST(true);
 
-    // attach
-    target::USB.DEVICE.CTRLB.setDETACH(false);
+    usbReset();
+
     target::USB.DEVICE.CTRLA.setENABLE(true);
 
-    usbReset();
+    // attach
+    target::USB.DEVICE.CTRLB.setDETACH(false);
   }
 
-  void setAddress(int address) { target::USB.DEVICE.DADD = 0x80 | address; }
+  void setAddress(int address) {
+    target::USB.DEVICE.DADD = 0x80 | address;
+  }
 
   void interruptHandlerUSB() {
     if (target::USB.DEVICE.INTFLAG.getEORST()) {
-      target::USB.DEVICE.INTFLAG.setEORST(true);
+      target::USB.DEVICE.INTFLAG = target::USB.DEVICE.INTFLAG.bare().setEORST(true);
       usbReset();
     }
 
@@ -147,24 +151,24 @@ public:
       if (target::USB.DEVICE.EPINTFLAG[e].reg.getTRCPT(0)) {
         if (e > 0) {
           endpoint->rxComplete(epDescriptors[e][0].PCKSIZE.BYTE_COUNT);
-          target::USB.DEVICE.EPINTFLAG[e].reg.setTRCPT(0, true);
+          target::USB.DEVICE.EPINTFLAG[e].reg = target::USB.DEVICE.EPINTFLAG[e].reg.bare().setTRCPT(0, true);
           epDescriptors[e][0].PCKSIZE.BYTE_COUNT = 0;
-          target::USB.DEVICE.EPSTATUSCLR[e].reg.setBK_RDY(0, true);
+          target::USB.DEVICE.EPSTATUSCLR[e].reg = target::USB.DEVICE.EPSTATUSCLR[e].reg.bare().setBK_RDY(0, true);
         } else {
-          target::USB.DEVICE.EPINTFLAG[e].reg.setTRCPT(0, true);
+          target::USB.DEVICE.EPINTFLAG[e].reg = target::USB.DEVICE.EPINTFLAG[e].reg.bare().setTRCPT(0, true);
         }
       }
 
       if (target::USB.DEVICE.EPINTFLAG[e].reg.getTRCPT(1)) {
         endpoint->txComplete();
-        target::USB.DEVICE.EPINTFLAG[e].reg.setTRCPT(1, true);
+        target::USB.DEVICE.EPINTFLAG[e].reg = target::USB.DEVICE.EPINTFLAG[e].reg.bare().setTRCPT(1, true);
       }
 
       if (target::USB.DEVICE.EPINTFLAG[e].reg.getRXSTP()) {
         endpoint->setup((SetupData *)endpoint->rxBufferPtr);
-        target::USB.DEVICE.EPINTFLAG[e].reg.setRXSTP(true);
+        target::USB.DEVICE.EPINTFLAG[e].reg = target::USB.DEVICE.EPINTFLAG[e].reg.bare().setRXSTP(true);
         epDescriptors[e][0].PCKSIZE.BYTE_COUNT = 0;
-        target::USB.DEVICE.EPSTATUSCLR[e].reg.setBK_RDY(0, true);
+        target::USB.DEVICE.EPSTATUSCLR[e].reg = target::USB.DEVICE.EPSTATUSCLR[e].reg.bare().setBK_RDY(0, true);
       }
     }
   }
@@ -172,10 +176,12 @@ public:
   void startTx(int epIndex, int length) {
     epDescriptors[epIndex][1].PCKSIZE.MULTI_PACKET_SIZE = 0;
     epDescriptors[epIndex][1].PCKSIZE.BYTE_COUNT = length;
-    target::USB.DEVICE.EPSTATUSSET[epIndex].reg.setBK_RDY(1, true);
+    target::USB.DEVICE.EPSTATUSSET[epIndex].reg = target::USB.DEVICE.EPSTATUSSET[epIndex].reg.bare().setBK_RDY(1, true);
   }
 
-  void stall(int epIndex) { target::USB.DEVICE.EPSTATUSSET[epIndex].reg.setSTALLRQ(1, true); }
+  void stall(int epIndex) {
+    target::USB.DEVICE.EPSTATUSSET[epIndex].reg = target::USB.DEVICE.EPSTATUSSET[epIndex].reg.bare().setSTALLRQ(1, true);
+  }
 
   const char *getSerial() { return (const char *)&serialNumber; }
 };
